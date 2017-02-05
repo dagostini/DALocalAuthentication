@@ -8,18 +8,49 @@
 
 import UIKit
 
+private struct Constants {
+    static let UserVCID = "UserViewController"
+}
+
 class ViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+    var loginController: LoginProtocol = LoginController()
+    
+    @IBOutlet weak var userNameTextField: UITextField!
+    @IBOutlet weak var passwordTextField: UITextField!
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // Checking TouchID here... Just for demo!
+        loginController.loginDeviceOwner { (ownerID) in
+            print("didLoginOwner: ", ownerID ?? "NO OWNER")
+            if let owner = ownerID {
+                self.presentUserScreen(user: owner)
+            } else {
+                print("Could not authenticate owner")
+            }
+        }
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    @IBAction func loginAction() {
+        if let user = userNameTextField.text, let pass = passwordTextField.text {
+            loginController.login(userName: user, password: pass, onLogin: { (success) in
+                print("didLogin: ", success)
+                self.presentUserScreen(user: user)
+            })
+        }
     }
-
-
+    
+    @IBAction func resetOwnerAction() {
+        loginController.resetOwner()
+    }
+    
+    private func presentUserScreen(user: String) {
+        if let userVC = self.storyboard?.instantiateViewController(withIdentifier: Constants.UserVCID) as? UserViewController {
+            userVC.currentUser = user
+            self.present(userVC, animated: true, completion: nil)
+        }
+    }
 }
 
