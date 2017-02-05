@@ -37,7 +37,11 @@ class ViewController: UIViewController {
         if let user = userNameTextField.text, let pass = passwordTextField.text {
             loginController.login(userName: user, password: pass, onLogin: { (success) in
                 print("didLogin: ", success)
-                self.presentUserScreen(user: user)
+                if success == true {
+                    self.presentUserScreen(user: user)
+                } else {
+                    print("Login failed")
+                }
             })
         }
     }
